@@ -35,7 +35,7 @@ const ClientPage = ({topicName, initialData}: ClientPageProps) => {
 
     useEffect(() => {
         socket.emit("join-room", `room:${topicName}`)
-    }, []);
+    });
 
     useEffect(() => {
         socket.on("room-update", (message: string) => {
