@@ -15,6 +15,8 @@ export const  createTopic = async ({topicName} : {topicName: string}) => {
         return {error: "Only letters and '-' allowed in name"};
     }
 
+    topicName = topicName[0].toUpperCase() + topicName.slice(1).toLowerCase();
+
     // Set add
     await redis.sadd("existing-topic", topicName);
 
@@ -22,7 +24,7 @@ export const  createTopic = async ({topicName} : {topicName: string}) => {
 }
 
 const wordFreq = (text: string) : {text: string, value: number}[] => {
-    const words:string[] = text.replace(/\./g, "").split(/\s/);
+    const words:string[] = text.replace(/\./g, "").split(/\s/).map((w) => {return w.toLowerCase()});
     const freqMap: Record<string, number> = {}
 
     for(const w of words){

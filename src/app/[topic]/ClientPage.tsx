@@ -11,6 +11,7 @@ import {Button} from "@/components/ui/button";
 import {useMutation} from "@tanstack/react-query";
 import {submitComment} from "@/app/actions";
 import {io} from "socket.io-client";
+import {useRouter} from "next/navigation";
 
 const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL || "");
 
@@ -33,9 +34,15 @@ const ClientPage = ({topicName, initialData}: ClientPageProps) => {
         range: [10, 100]
     });
 
+    const router = useRouter();
+
     useEffect(() => {
-        socket.emit("join-room", `room:${topicName}`)
-    }, []);
+        if(socket.connected) {
+            socket.emit("join-room", `room:${topicName}`)
+        }else{
+            socket.connect();
+        }
+    }, [socket.connected]);
 
     useEffect(() => {
         socket.on("room-update", (message: string) => {
@@ -115,12 +122,22 @@ const ClientPage = ({topicName, initialData}: ClientPageProps) => {
                         onChange={(event) => setInput(event.target.value)}
                     >
                     </Input>
-                    <Button disabled={isPending} onClick={() => mutate({comment: input, topicName})}>
+                    <Button disabled={isPending} onClick={() => {
+                        mutate({comment: input, topicName})
+                        setInput("");
+                    }}>
                         Share
                     </Button>
                 </div>
 
             </div>
+            <Button onClick={() => {
+                socket.disconnect();
+                router.push("/")
+
+                }}>
+                Return To Main Page
+            </Button>
         </MaxWidthWrapper>
     </div>
 }
